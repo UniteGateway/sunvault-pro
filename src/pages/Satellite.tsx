@@ -12,10 +12,11 @@ import { supabase } from "@/integrations/supabase/client";
 const Satellite = () => {
   const navigate = useNavigate();
   const [searchAddress, setSearchAddress] = useState("");
+  const [searchTrigger, setSearchTrigger] = useState(0);
   const [markedLocation, setMarkedLocation] = useState<google.maps.LatLngLiteral | null>(null);
-
-  const handleMarkLocation = async (location: google.maps.LatLngLiteral) => {
-    setMarkedLocation(location);
+  const [solarSites, setSolarSites] = useState<Array<{id:string; type:string; lat:number; lng:number; name?:string}>>([]);
+  const handleMarkLocation = async (location: { lat: number; lng: number; address?: string }) => {
+    setMarkedLocation({ lat: location.lat, lng: location.lng });
     toast.success("Location marked for analysis");
     
     try {
@@ -30,7 +31,7 @@ const Satellite = () => {
         .from("scans")
         .insert({
           user_id: user.id,
-          address: searchAddress,
+          address: searchAddress || location.address || "",
           latitude: location.lat,
           longitude: location.lng,
           total_roof_area: 2400,
@@ -46,8 +47,8 @@ const Satellite = () => {
       setTimeout(() => {
         navigate("/roof-area-result", { 
           state: { 
-            location,
-            address: searchAddress,
+            location: { lat: location.lat, lng: location.lng },
+            address: searchAddress || location.address || "",
             scanId: scan.id
           } 
         });
@@ -79,22 +80,48 @@ const Satellite = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex gap-2">
+            <form
+              className="flex gap-2"
+              onSubmit={(e) => { e.preventDefault(); setSearchTrigger((t) => t + 1); }}
+            >
               <Input
                 placeholder="Enter address..."
                 value={searchAddress}
                 onChange={(e) => setSearchAddress(e.target.value)}
               />
-              <Button>
+              <Button type="submit">
                 <Search className="mr-2 h-4 w-4" />
                 Search
               </Button>
-            </div>
+            </form>
 
             <SatelliteMap 
               address={searchAddress}
+              searchTrigger={searchTrigger}
               onLocationSelect={handleMarkLocation}
+              onSolarSites={setSolarSites}
             />
+          </CardContent>
+        </Card>
+
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Solar installations within 5 km</CardTitle>
+            <CardDescription>Detected via open geospatial data; may be incomplete</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {solarSites.length === 0 ? (
+              <p className="text-muted-foreground text-sm">No solar sites found yet. Search an address or click the map to scan.</p>
+            ) : (
+              <ul className="space-y-2">
+                {solarSites.map((s) => (
+                  <li key={s.id} className="text-sm">
+                    <span className="font-medium">{s.name || "Unnamed site"}</span>
+                    <span className="text-muted-foreground"> — {s.lat.toFixed(5)}, {s.lng.toFixed(5)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </CardContent>
         </Card>
       </div>
