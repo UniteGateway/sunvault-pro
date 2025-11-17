@@ -38,6 +38,128 @@ export type Database = {
         }
         Relationships: []
       }
+      proposals: {
+        Row: {
+          assessment_data: Json | null
+          boq_data: Json | null
+          client_email: string | null
+          client_name: string
+          client_phone: string | null
+          cover_page_data: Json | null
+          created_at: string | null
+          digital_signature: string | null
+          emi_data: Json | null
+          feasibility_data: Json | null
+          financials_data: Json | null
+          id: string
+          overview_data: Json | null
+          roi_data: Json | null
+          scan_id: string | null
+          status: string | null
+          system_capacity: number | null
+          terms_data: Json | null
+          total_cost: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          assessment_data?: Json | null
+          boq_data?: Json | null
+          client_email?: string | null
+          client_name: string
+          client_phone?: string | null
+          cover_page_data?: Json | null
+          created_at?: string | null
+          digital_signature?: string | null
+          emi_data?: Json | null
+          feasibility_data?: Json | null
+          financials_data?: Json | null
+          id?: string
+          overview_data?: Json | null
+          roi_data?: Json | null
+          scan_id?: string | null
+          status?: string | null
+          system_capacity?: number | null
+          terms_data?: Json | null
+          total_cost?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          assessment_data?: Json | null
+          boq_data?: Json | null
+          client_email?: string | null
+          client_name?: string
+          client_phone?: string | null
+          cover_page_data?: Json | null
+          created_at?: string | null
+          digital_signature?: string | null
+          emi_data?: Json | null
+          feasibility_data?: Json | null
+          financials_data?: Json | null
+          id?: string
+          overview_data?: Json | null
+          roi_data?: Json | null
+          scan_id?: string | null
+          status?: string | null
+          system_capacity?: number | null
+          terms_data?: Json | null
+          total_cost?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposals_scan_id_fkey"
+            columns: ["scan_id"]
+            isOneToOne: false
+            referencedRelation: "scans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scans: {
+        Row: {
+          address: string
+          created_at: string | null
+          estimated_capacity: number | null
+          id: string
+          latitude: number
+          longitude: number
+          shaded_area: number | null
+          total_roof_area: number | null
+          updated_at: string | null
+          usable_solar_area: number | null
+          user_id: string
+        }
+        Insert: {
+          address: string
+          created_at?: string | null
+          estimated_capacity?: number | null
+          id?: string
+          latitude: number
+          longitude: number
+          shaded_area?: number | null
+          total_roof_area?: number | null
+          updated_at?: string | null
+          usable_solar_area?: number | null
+          user_id: string
+        }
+        Update: {
+          address?: string
+          created_at?: string | null
+          estimated_capacity?: number | null
+          id?: string
+          latitude?: number
+          longitude?: number
+          shaded_area?: number | null
+          total_roof_area?: number | null
+          updated_at?: string | null
+          usable_solar_area?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

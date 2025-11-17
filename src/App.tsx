@@ -14,6 +14,7 @@ import RoofAreaResult from "./pages/RoofAreaResult";
 import ShadingAnalysis from "./pages/ShadingAnalysis";
 import SolarRecommendation from "./pages/SolarRecommendation";
 import ProposalPDFPreview from "./pages/ProposalPDFPreview";
+import ProposalBuilder from "./pages/ProposalBuilder";
 import BuilderForms from "./pages/BuilderForms";
 import LayoutsDocuments from "./pages/LayoutsDocuments";
 import ProjectStatus from "./pages/ProjectStatus";
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/lead-detail/:id" element={<LeadDetail />} />
           <Route path="/proposals" element={<Proposals />} />
           <Route path="/proposal-pdf/:id" element={<ProposalPDFPreview />} />
+          <Route path="/proposal-builder" element={<ProposalBuilder />} />
           <Route path="/builder-forms" element={<BuilderForms />} />
           <Route path="/layouts-documents" element={<LayoutsDocuments />} />
           <Route path="/project-status" element={<ProjectStatus />} />

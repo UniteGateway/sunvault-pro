@@ -58,7 +58,7 @@ const Proposals = () => {
               Generate and manage solar installation proposals
             </p>
           </div>
-          <Button>
+          <Button onClick={() => window.location.href = '/proposal-builder'}>
             <Plus className="mr-2 h-4 w-4" />
             New Proposal
           </Button>

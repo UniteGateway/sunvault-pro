@@ -1,11 +1,14 @@
 import { ReactNode, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Sun, LogOut, Menu, X } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useUserRole } from "@/hooks/useUserRole";
 import Footer from "@/components/Footer";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "./AppSidebar";
+import uniteLogo from "@/assets/unite-logo2.png";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -13,16 +16,16 @@ interface DashboardLayoutProps {
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const navigate = useNavigate();
-  const { roles, loading } = useUserRole();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { loading: rolesLoading } = useUserRole();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check authentication
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         navigate('/auth');
       }
+      setLoading(false);
     };
     checkAuth();
   }, [navigate]);
@@ -39,7 +42,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     }
   };
 
-  if (loading) {
+  if (loading || rolesLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
@@ -48,104 +51,35 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted flex flex-col">
-      {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/60 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sun className="h-8 w-8 text-primary" />
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                Unite Solar
-              </h1>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <AppSidebar />
+        
+        <div className="flex-1 flex flex-col">
+          <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <SidebarTrigger />
+                <Link to="/" className="flex items-center">
+                  <img src={uniteLogo} alt="Unite Solar" className="h-8" />
+                </Link>
+              </div>
+
+              <Button onClick={handleLogout} variant="outline" size="sm">
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </Button>
             </div>
+          </header>
 
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2"
-            >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
+          <main className="flex-1 bg-gradient-to-br from-background via-background to-primary/5">
+            {children}
+          </main>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-6">
-              <Link to="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-                Dashboard
-              </Link>
-              <Link to="/satellite" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-                Satellite Scan
-              </Link>
-              <Link to="/leads" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-                Leads
-              </Link>
-              <Link to="/proposals" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-                Proposals
-              </Link>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">
-                  {roles.map(r => r.charAt(0).toUpperCase() + r.slice(1)).join(', ')}
-                </span>
-                <Button size="sm" variant="outline" onClick={handleLogout}>
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Logout
-                </Button>
-              </div>
-            </nav>
-          </div>
-
-          {/* Mobile Navigation */}
-          {mobileMenuOpen && (
-            <nav className="md:hidden mt-4 flex flex-col gap-2 pb-4">
-              <Link 
-                to="/dashboard" 
-                className="text-sm font-medium text-muted-foreground hover:text-foreground py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Dashboard
-              </Link>
-              <Link 
-                to="/satellite" 
-                className="text-sm font-medium text-muted-foreground hover:text-foreground py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Satellite Scan
-              </Link>
-              <Link 
-                to="/leads" 
-                className="text-sm font-medium text-muted-foreground hover:text-foreground py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Leads
-              </Link>
-              <Link 
-                to="/proposals" 
-                className="text-sm font-medium text-muted-foreground hover:text-foreground py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Proposals
-              </Link>
-              <div className="pt-2 border-t">
-                <span className="text-xs text-muted-foreground block mb-2">
-                  Role: {roles.map(r => r.charAt(0).toUpperCase() + r.slice(1)).join(', ')}
-                </span>
-                <Button size="sm" variant="outline" onClick={handleLogout} className="w-full">
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Logout
-                </Button>
-              </div>
-            </nav>
-          )}
+          <Footer />
         </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="flex-1">
-        {children}
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </SidebarProvider>
   );
 };
 
