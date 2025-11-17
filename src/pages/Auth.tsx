@@ -9,6 +9,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
+import logo from "@/assets/unite-solar-logo.png";
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -25,6 +26,25 @@ const Auth = () => {
     };
     checkUser();
   }, [navigate]);
+
+  const handleGuestLogin = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: "guest@unitesolar.com",
+        password: "GuestPass2024!",
+      });
+
+      if (error) throw error;
+
+      toast.success("Logged in as guest!");
+      navigate("/dashboard");
+    } catch (error: any) {
+      toast.error("Guest login failed. Please try manual login.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,12 +110,10 @@ const Auth = () => {
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Sun className="h-10 w-10 text-primary" />
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                Unite Solar
-              </h1>
+            <div className="flex items-center justify-center mb-6">
+              <img src={logo} alt="Unite Solar" className="h-20 w-auto" />
             </div>
+            <h1 className="text-3xl font-bold mb-2">Welcome to Unite Solar</h1>
             <p className="text-muted-foreground">Access your solar analytics dashboard</p>
           </div>
 
@@ -161,13 +179,28 @@ const Auth = () => {
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? "Logging in..." : "Login"}
                   </Button>
-
-                  <div className="text-center text-sm text-muted-foreground">
-                    <a href="#" className="hover:text-primary">
-                      Forgot password?
-                    </a>
-                  </div>
                 </form>
+                <div className="mt-4">
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">
+                        Or continue as
+                      </span>
+                    </div>
+                  </div>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    className="w-full mt-4" 
+                    onClick={handleGuestLogin}
+                    disabled={isLoading}
+                  >
+                    Guest Login (Testing)
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
