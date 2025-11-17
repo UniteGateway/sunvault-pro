@@ -1,4 +1,4 @@
-import { Home, Satellite, Users, FileText, BarChart3, Settings, Layers } from "lucide-react";
+import { Home, Satellite, Scan, Users, FileText, BarChart3, Settings, Layers } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -23,6 +23,7 @@ export function AppSidebar() {
   const mainItems = [
     { title: "Dashboard", url: "/dashboard", icon: Home },
     { title: "Satellite Scan", url: "/satellite", icon: Satellite },
+    { title: "Rooftop Monitoring", url: "/rooftop-monitoring", icon: Scan },
     { title: "Leads", url: "/leads", icon: Users },
     { title: "Proposals", url: "/proposals", icon: FileText },
     { title: "Project Status", url: "/project-status", icon: BarChart3 },
