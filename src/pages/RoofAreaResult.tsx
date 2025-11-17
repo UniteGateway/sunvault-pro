@@ -3,13 +3,19 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { MapPin, Ruler, Sun, ArrowRight, Home } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const RoofAreaResult = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const scanData = location.state as { location?: { lat: number; lng: number }; address?: string } | null;
+
+  // Use the actual scanned address or fallback to default
+  const scannedAddress = scanData?.address || "Bangalore, Karnataka";
 
   const results = {
-    location: "Bangalore, Karnataka",
+    location: scannedAddress,
+    coordinates: scanData?.location ? `${scanData.location.lat.toFixed(6)}, ${scanData.location.lng.toFixed(6)}` : null,
     totalRoofArea: 2400,
     usableSolarArea: 1800,
     shadedArea: 300,
@@ -31,6 +37,20 @@ const RoofAreaResult = () => {
           </Button>
           <h2 className="text-3xl font-bold mb-2">Roof Area Analysis Results</h2>
           <p className="text-muted-foreground">Detailed breakdown of your roof's solar potential</p>
+          
+          <div className="mt-4 p-3 bg-primary/10 border border-primary/20 rounded-lg">
+            <div className="flex items-start gap-2">
+              <MapPin className="h-5 w-5 text-primary mt-0.5" />
+              <div>
+                <p className="font-medium text-foreground">{results.location}</p>
+                {results.coordinates && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Coordinates: {results.coordinates}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
