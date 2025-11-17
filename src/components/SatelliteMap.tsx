@@ -2,7 +2,8 @@ import { useState, useCallback, useEffect } from "react";
 import { APIProvider, Map, Marker } from "@vis.gl/react-google-maps";
 import { GOOGLE_MAPS_API_KEY, GOOGLE_MAPS_CONFIG } from "@/lib/googleMaps";
 import { Button } from "@/components/ui/button";
-import { Maximize2 } from "lucide-react";
+import { Maximize2, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface SolarSite {
   id: string;
@@ -26,8 +27,12 @@ const SatelliteMap = ({ address, searchTrigger = 0, onLocationSelect, onSolarSit
   const [zoom, setZoom] = useState(18);
   const [markerPosition, setMarkerPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [solarMarkers, setSolarMarkers] = useState<SolarSite[]>([]);
+  const [isScanning, setIsScanning] = useState(false);
+  const [isGeocoding, setIsGeocoding] = useState(false);
 
   const fetchSolarSites = useCallback(async (c: { lat: number; lng: number }) => {
+    setIsScanning(true);
+    toast.loading("Scanning for solar installations...", { id: "solar-scan" });
     try {
       const radius = Math.round(radiusKm * 1000);
       const query = `[out:json][timeout:25];
@@ -46,6 +51,11 @@ out center 30;`;
         headers: { "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8" },
         body: new URLSearchParams({ data: query }).toString(),
       });
+      
+      if (!res.ok) {
+        throw new Error(`Overpass API error: ${res.status}`);
+      }
+      
       const data = await res.json();
       const sites: SolarSite[] = (data.elements || [])
         .map((el: any) => {
@@ -64,8 +74,12 @@ out center 30;`;
         .filter(Boolean) as SolarSite[];
       setSolarMarkers(sites);
       onSolarSites?.(sites);
+      toast.success(`Found ${sites.length} solar installation(s)`, { id: "solar-scan" });
     } catch (e) {
       console.error("Overpass fetch failed", e);
+      toast.error("Failed to scan for solar installations", { id: "solar-scan" });
+    } finally {
+      setIsScanning(false);
     }
   }, [onSolarSites, radiusKm]);
 
@@ -83,18 +97,24 @@ out center 30;`;
 
   // Geocode address to center using OSM Nominatim to avoid extra Google setup
   useEffect(() => {
-    if (!address?.trim()) return;
+    if (!address?.trim() || searchTrigger === 0) return;
+    
+    setIsGeocoding(true);
+    toast.loading("Searching location...", { id: "geocode" });
     const controller = new AbortController();
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1&addressdetails=1`;
+    
     fetch(url, {
       headers: {
         "Accept": "application/json",
-        // Set a descriptive UA per Nominatim usage policy
         "User-Agent": "unite-solar-app/1.0 (+https://lovable.dev)",
       },
       signal: controller.signal,
     })
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`Geocoding failed: ${r.status}`);
+        return r.json();
+      })
       .then((results) => {
         if (results?.[0]) {
           const lat = parseFloat(results[0].lat);
@@ -104,30 +124,41 @@ out center 30;`;
           setZoom(18);
           setMarkerPosition(c);
           onLocationSelect?.({ ...c, address });
+          toast.success("Location found!", { id: "geocode" });
           fetchSolarSites(c);
+        } else {
+          toast.error("Location not found. Try a different address.", { id: "geocode" });
         }
+        setIsGeocoding(false);
       })
       .catch((err) => {
         if ((err as any)?.name !== "AbortError") {
-          console.warn("Geocoding failed", err);
+          console.error("Geocoding failed", err);
+          toast.error("Failed to search location", { id: "geocode" });
+          setIsGeocoding(false);
         }
       });
     return () => controller.abort();
-  }, [address, searchTrigger, onLocationSelect, fetchSolarSites]);
+  }, [searchTrigger, address, onLocationSelect, fetchSolarSites]);
 
   // Auto-center on user's location on first load if permitted
   useEffect(() => {
     if (!navigator.geolocation) return;
-    if (address?.trim()) return; // if searching, don't override
+    
+    toast.loading("Getting your location...", { id: "geolocation" });
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setCenter(c);
         setZoom(16);
+        toast.success("Location detected!", { id: "geolocation" });
         fetchSolarSites(c);
       },
-      () => { /* ignore */ },
-      { enableHighAccuracy: true, timeout: 8000 }
+      (err) => {
+        console.warn("Geolocation failed", err);
+        toast.dismiss("geolocation");
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
     );
   }, []); // run once
 
@@ -160,9 +191,21 @@ out center 30;`;
         <Button
           size="sm"
           variant="secondary"
-          onClick={() => fetchSolarSites(markerPosition ?? center)}
+          onClick={() => {
+            const scanCenter = markerPosition ?? center;
+            console.log("Manual scan triggered at:", scanCenter);
+            fetchSolarSites(scanCenter);
+          }}
+          disabled={isScanning}
         >
-          Scan 5 km for solar rooftops
+          {isScanning ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Scanning...
+            </>
+          ) : (
+            "Scan 5 km for solar rooftops"
+          )}
         </Button>
       </div>
     </div>
