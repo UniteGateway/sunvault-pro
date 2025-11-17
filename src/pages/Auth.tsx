@@ -1,50 +1,103 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sun, Mail, Phone } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Footer from "@/components/Footer";
+import { supabase } from "@/integrations/supabase/client";
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loginMethod, setLoginMethod] = useState<"email" | "phone">("email");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if user is already logged in
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate("/dashboard");
+      }
+    };
+    checkUser();
+  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Placeholder for authentication logic
-    setTimeout(() => {
+    
+    const formData = new FormData(e.target as HTMLFormElement);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      toast.success("Login successful!");
+      navigate("/dashboard");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to login");
+    } finally {
       setIsLoading(false);
-      toast.success("Login functionality ready for integration");
-    }, 1000);
+    }
   };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Placeholder for signup logic
-    setTimeout(() => {
+    
+    const formData = new FormData(e.target as HTMLFormElement);
+    const email = formData.get("signup-email") as string;
+    const password = formData.get("signup-password") as string;
+    const fullName = formData.get("name") as string;
+    const companyName = formData.get("company") as string;
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            full_name: fullName,
+            company_name: companyName,
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      toast.success("Account created successfully!");
+      navigate("/dashboard");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to create account");
+    } finally {
       setIsLoading(false);
-      toast.success("Signup functionality ready for integration");
-    }, 1000);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted to-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Sun className="h-10 w-10 text-primary" />
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Unite Solar
-            </h1>
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted to-background flex flex-col">
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Sun className="h-10 w-10 text-primary" />
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                Unite Solar
+              </h1>
+            </div>
+            <p className="text-muted-foreground">Access your solar analytics dashboard</p>
           </div>
-          <p className="text-muted-foreground">Access your solar analytics dashboard</p>
-        </div>
 
         <Tabs defaultValue="login" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
@@ -85,22 +138,22 @@ const Auth = () => {
                     <>
                       <div className="space-y-2">
                         <Label htmlFor="email">Email</Label>
-                        <Input id="email" type="email" placeholder="you@example.com" required />
+                        <Input id="email" name="email" type="email" placeholder="you@example.com" required />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="password">Password</Label>
-                        <Input id="password" type="password" required />
+                        <Input id="password" name="password" type="password" required />
                       </div>
                     </>
                   ) : (
                     <>
                       <div className="space-y-2">
                         <Label htmlFor="phone">Phone Number</Label>
-                        <Input id="phone" type="tel" placeholder="+91 98765 43210" required />
+                        <Input id="phone" name="phone" type="tel" placeholder="+91 98765 43210" required />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="otp">OTP</Label>
-                        <Input id="otp" type="text" placeholder="Enter OTP" maxLength={6} />
+                        <Input id="otp" name="otp" type="text" placeholder="Enter OTP" maxLength={6} />
                       </div>
                     </>
                   )}
@@ -129,23 +182,23 @@ const Auth = () => {
                 <form onSubmit={handleSignup} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Full Name</Label>
-                    <Input id="name" placeholder="John Doe" required />
+                    <Input id="name" name="name" placeholder="John Doe" required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="company">Company Name</Label>
-                    <Input id="company" placeholder="Your Solar Company" required />
+                    <Input id="company" name="company" placeholder="Your Solar Company" required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">Email</Label>
-                    <Input id="signup-email" type="email" placeholder="you@example.com" required />
+                    <Input id="signup-email" name="signup-email" type="email" placeholder="you@example.com" required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-phone">Phone Number</Label>
-                    <Input id="signup-phone" type="tel" placeholder="+91 98765 43210" required />
+                    <Input id="signup-phone" name="signup-phone" type="tel" placeholder="+91 98765 43210" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-password">Password</Label>
-                    <Input id="signup-password" type="password" required />
+                    <Input id="signup-password" name="signup-password" type="password" required minLength={6} />
                   </div>
 
                   <Button type="submit" className="w-full" disabled={isLoading}>
@@ -164,10 +217,11 @@ const Auth = () => {
           </TabsContent>
         </Tabs>
 
-        <div className="mt-4 text-center">
-          <Link to="/" className="text-sm text-muted-foreground hover:text-primary">
-            ← Back to Home
-          </Link>
+          <div className="mt-4 text-center">
+            <Link to="/" className="text-sm text-muted-foreground hover:text-primary">
+              ← Back to Home
+            </Link>
+          </div>
         </div>
       </div>
       
