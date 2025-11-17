@@ -82,14 +82,22 @@ const Satellite = () => {
           <CardContent className="space-y-4">
             <form
               className="flex gap-2"
-              onSubmit={(e) => { e.preventDefault(); setSearchTrigger((t) => t + 1); }}
+              onSubmit={(e) => { 
+                e.preventDefault(); 
+                console.log("Search submitted:", searchAddress);
+                if (!searchAddress.trim()) {
+                  toast.error("Please enter an address");
+                  return;
+                }
+                setSearchTrigger((t) => t + 1); 
+              }}
             >
               <Input
                 placeholder="Enter address..."
                 value={searchAddress}
                 onChange={(e) => setSearchAddress(e.target.value)}
               />
-              <Button type="submit">
+              <Button type="submit" disabled={!searchAddress.trim()}>
                 <Search className="mr-2 h-4 w-4" />
                 Search
               </Button>
