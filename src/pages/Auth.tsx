@@ -9,7 +9,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
-import logo from "@/assets/unite-solar-logo.png";
+import logo from "@/assets/unite-logo2.png";
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
