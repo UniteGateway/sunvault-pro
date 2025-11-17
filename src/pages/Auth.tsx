@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sun, Mail, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import Footer from "@/components/Footer";
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -169,6 +170,8 @@ const Auth = () => {
           </Link>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 };

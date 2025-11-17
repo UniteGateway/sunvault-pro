@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, MapPin, FileText, BarChart3, Sun, Zap, TrendingUp, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
+import Footer from "@/components/Footer";
 
 const Index = () => {
   return (
@@ -141,6 +142,8 @@ const Index = () => {
           </CardHeader>
         </Card>
       </section>
+      
+      <Footer />
     </div>
   );
 };

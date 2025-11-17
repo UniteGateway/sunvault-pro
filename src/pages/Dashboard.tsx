@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Building2, MapPin, FileText, Users, Sun, TrendingUp, Zap, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
+import Footer from "@/components/Footer";
 
 const Dashboard = () => {
   const stats = [
@@ -172,6 +173,8 @@ const Dashboard = () => {
           </Card>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 };
