@@ -5,21 +5,41 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Search, Satellite as SatelliteIcon } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
+import SatelliteMap from "@/components/SatelliteMap";
 
 const Satellite = () => {
   const [address, setAddress] = useState("");
   const [isScanning, setIsScanning] = useState(false);
+  const [showMap, setShowMap] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number; address: string } | null>(null);
+  const navigate = useNavigate();
 
   const handleScan = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!address.trim()) {
+      toast.error("Please enter a valid address");
+      return;
+    }
     setIsScanning(true);
     
-    // Placeholder for satellite scan functionality
+    // Simulate geocoding delay
     setTimeout(() => {
       setIsScanning(false);
-      toast.success("Satellite scan completed! Results will be available shortly.");
-    }, 2000);
+      setShowMap(true);
+      toast.success("Location found! Click on the roof to start analysis.");
+    }, 1500);
+  };
+
+  const handleLocationSelect = (location: { lat: number; lng: number; address: string }) => {
+    setSelectedLocation(location);
+    toast.success("Location marked! Analyzing roof area...");
+    
+    // Navigate to results after a short delay
+    setTimeout(() => {
+      navigate("/roof-area-result", { state: { location, address } });
+    }, 1500);
   };
 
   return (
@@ -60,19 +80,32 @@ const Satellite = () => {
 
                 <Button type="submit" className="w-full" disabled={isScanning}>
                   <Search className="mr-2 h-4 w-4" />
-                  {isScanning ? "Scanning..." : "Start Satellite Scan"}
+                  {isScanning ? "Searching..." : "Find Location"}
                 </Button>
               </form>
 
-              <div className="mt-6 p-4 bg-muted rounded-lg">
-                <h3 className="font-semibold mb-2">What we analyze:</h3>
-                <ul className="space-y-1 text-sm text-muted-foreground">
-                  <li>• Roof area and orientation</li>
-                  <li>• Shading analysis throughout the day</li>
-                  <li>• Optimal panel placement</li>
-                  <li>• Estimated energy generation</li>
-                </ul>
-              </div>
+              {showMap && (
+                <div className="mt-6 space-y-4">
+                  <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                    <p className="text-sm font-medium text-foreground">
+                      📍 Click on the building roof to mark the location for analysis
+                    </p>
+                  </div>
+                  <SatelliteMap address={address} onLocationSelect={handleLocationSelect} />
+                </div>
+              )}
+
+              {!showMap && (
+                <div className="mt-6 p-4 bg-muted rounded-lg">
+                  <h3 className="font-semibold mb-2">What we analyze:</h3>
+                  <ul className="space-y-1 text-sm text-muted-foreground">
+                    <li>• Roof area and orientation</li>
+                    <li>• Shading analysis throughout the day</li>
+                    <li>• Optimal panel placement</li>
+                    <li>• Estimated energy generation</li>
+                  </ul>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
