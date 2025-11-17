@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Satellite from "./pages/Satellite";
+import RooftopMonitoring from "./pages/RooftopMonitoring";
 import Leads from "./pages/Leads";
 import LeadDetail from "./pages/LeadDetail";
 import Proposals from "./pages/Proposals";
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/satellite" element={<Satellite />} />
+          <Route path="/rooftop-monitoring" element={<RooftopMonitoring />} />
           <Route path="/roof-area-result" element={<RoofAreaResult />} />
           <Route path="/shading-analysis" element={<ShadingAnalysis />} />
           <Route path="/solar-recommendation" element={<SolarRecommendation />} />
