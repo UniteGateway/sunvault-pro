@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { MapPin, Search } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useNavigate } from "react-router-dom";
-import { SatelliteMap } from "@/components/SatelliteMap";
+import SatelliteMap from "@/components/SatelliteMap";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
