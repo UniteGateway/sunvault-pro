@@ -8,7 +8,16 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Satellite from "./pages/Satellite";
 import Leads from "./pages/Leads";
+import LeadDetail from "./pages/LeadDetail";
 import Proposals from "./pages/Proposals";
+import RoofAreaResult from "./pages/RoofAreaResult";
+import ShadingAnalysis from "./pages/ShadingAnalysis";
+import SolarRecommendation from "./pages/SolarRecommendation";
+import ProposalPDFPreview from "./pages/ProposalPDFPreview";
+import BuilderForms from "./pages/BuilderForms";
+import LayoutsDocuments from "./pages/LayoutsDocuments";
+import ProjectStatus from "./pages/ProjectStatus";
+import PaymentTracker from "./pages/PaymentTracker";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,8 +33,17 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/satellite" element={<Satellite />} />
+          <Route path="/roof-area-result" element={<RoofAreaResult />} />
+          <Route path="/shading-analysis" element={<ShadingAnalysis />} />
+          <Route path="/solar-recommendation" element={<SolarRecommendation />} />
           <Route path="/leads" element={<Leads />} />
+          <Route path="/lead-detail/:id" element={<LeadDetail />} />
           <Route path="/proposals" element={<Proposals />} />
+          <Route path="/proposal-pdf/:id" element={<ProposalPDFPreview />} />
+          <Route path="/builder-forms" element={<BuilderForms />} />
+          <Route path="/layouts-documents" element={<LayoutsDocuments />} />
+          <Route path="/project-status" element={<ProjectStatus />} />
+          <Route path="/payment-tracker" element={<PaymentTracker />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
